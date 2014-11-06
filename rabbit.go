@@ -150,8 +150,8 @@ func (r *Rabbit) TryCatch(loc string) bool {
 	}
 
 	elapsed := time.Now().Sub(*r.lastSpotted)
-	chance := 1.0 - float64(elapsed) / float64(FleeTime)
-	if randFloat() < chance {
+	catchchance := 1.0 - float64(elapsed) / float64(FleeTime)
+	if chance(catchchance) {
 		r.state = Caught
 		r.location = ""
 	}

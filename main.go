@@ -33,4 +33,10 @@ func main() {
 	time.Sleep(time.Duration(2) * time.Millisecond)
 	r.DisturbanceAt(dir)
 	fmt.Printf("rabbit is at %s\n", r.Location())
+	time.Sleep(time.Duration(2) * time.Millisecond)
+	r.DisturbanceAt(dir)
+	fmt.Printf("rabbit is at %s\n", r.Location())
+	time.Sleep(time.Duration(2) * time.Millisecond)
+	r.DisturbanceAt(dir)
+	fmt.Printf("rabbit is at %s\n", r.Location())
 }

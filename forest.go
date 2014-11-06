@@ -7,7 +7,12 @@ import (
 
 const (
 	// Default value.
-	MaxRabbits	= 30
+	MinRabbits	= 1
+	// Default value. The numbers of rabbits that exist
+	// at any given time.
+	MaxRabbits	= 15
+	// Spawn chance for rabbits.
+	SpawnChance	= 0.20
 	
 	// Chance to ascend deeper (closer to /). The weight
 	// has to be fair, because ascending is very limited
@@ -21,16 +26,18 @@ const (
 type directoryForest struct {
 	// List of rabbits and their locations. Only one
 	// rabbit per location.
-	rabbits		map[string]Rabbit
-	// Number of rabbits currently in the forest.
-	numRabbits	uint
-	// Max number of rabbits allowed in the forest. Configurable.
-	maxRabbits	uint
+	rabbits		map[string]Rabbit	`json:"rabbits"`
+	// Number of rabbits seen.
+	spottedCount	uint			`json:"spottedCount"`
+	// Number of rabbits caught.
+	caughtCount	uint			`json:"caughtCount"`
+	// Number of rabbits killed. :(
+	killedCount	uint			`json:"killedCount"`
 }
 
 func newDirectoryForest() directoryForest {
 	return directoryForest{
-		make(map[string]Rabbit), 0, MaxRabbits,
+		map[string]Rabbit{}, 0, 0, 0,
 	}
 }
 
@@ -121,4 +128,51 @@ tryagain:
 	}
 	
 	return newloc
+}
+
+// Anytime a location is entered, a check is performed. This
+// function updates every rabbit and returns a rabbit if one
+// is spotted.
+func (f *directoryForest) CheckLocation(loc string) (spotted *Rabbit) {
+	spotted = nil
+	
+	newrabbits := map[string]Rabbit{}
+
+	for _, r := range f.rabbits {
+		r.DisturbanceAt(loc)
+		
+		// Can't move usually means caught or dead.
+		if (!r.CantMove()) {
+			if r.JustSpotted() {
+				spotted = &r
+				f.spottedCount++
+			}
+			newrabbits[r.Location()] = r
+		} else {
+			if r.State() == Dead {
+				f.killedCount++
+			} else if r.State() == Caught {
+				f.caughtCount++
+			}
+		}
+	}
+	
+	f.rabbits = newrabbits
+	
+	// See if we should repopulate.
+	f.populate()
+	
+	return
+}
+
+func (f *directoryForest) populate() {
+	for len(f.rabbits) < MinRabbits {
+		r := NewRabbit(f)
+		f.rabbits[r.Location()] = r
+	}
+	
+	if chance(SpawnChance) {
+		r := NewRabbit(f)
+		f.rabbits[r.Location()] = r
+	}
 }
