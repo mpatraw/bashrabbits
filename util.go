@@ -69,7 +69,7 @@ func randDescension(path string) string {
 
 // Returns true if you can ascend from this path. No ascending
 // below the home directory. The passed path must be absolute.
-func canDescend(path string) bool {
+func canAscend(path string) bool {
 	home := os.Getenv("HOME")
 	return strings.HasPrefix(filepath.Dir(path), home)
 }
