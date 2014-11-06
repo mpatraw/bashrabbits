@@ -172,6 +172,32 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 	return
 }
 
+// Attempts to catch a rabbit if it's still where we are.
+func (f *directoryForest) PerformCatch() bool {
+	loc, _ := os.Getwd()
+
+	rab, ok := f.rabbits[loc]
+
+	if ok {
+		return rab.TryCatch(loc)
+	}
+
+	return false
+}
+
+// Attempts to tag a rabbit if it's still where we are.
+func (f *directoryForest) PerformTag(tag string) bool {
+	loc, _ := os.Getwd()
+
+	rab, ok := f.rabbits[loc]
+
+	if ok {
+		return rab.TryTag(loc, tag)
+	}
+
+	return false
+}
+
 // Repopulated the forest if under the minimum number of rabbits
 // we want. Otherwise, chance a rabbit will spawn.
 func (f *directoryForest) repopulate() {

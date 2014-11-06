@@ -83,10 +83,21 @@ func main() {
 			}
 		}
 	case "catch":
+		if df.PerformCatch() {
+			fmt.Printf("You caught the rabbit!\n")
+		} else {
+			fmt.Printf("The rabbit got away...\n")
+		}
 	case "tag":
 		if flag.NArg() < 2 {
 			usage()
 			return
+		}
+
+		if df.PerformTag(flag.Arg(1)) {
+			fmt.Printf("You successfully tagged the rabbit!\n")
+		} else {
+			fmt.Printf("The rabbit got away...\n")
 		}
 	default: usage()
 	}
