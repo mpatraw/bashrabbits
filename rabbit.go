@@ -24,7 +24,7 @@ const (
 )
 
 // The time that elapses before a rabbit wants to moved.
-const IdleTime = time.Duration(10) * time.Minute
+const IdleTime = time.Duration(5) * time.Minute
 // The time that elapses before a rabbit moves after being spotted.
 const FleeTime = time.Duration(5) * time.Second
 

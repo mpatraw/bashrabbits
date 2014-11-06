@@ -145,7 +145,6 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 	for _, r := range f.rabbits {
 		r.DisturbanceAt(loc)
 
-		// Can't move usually means caught or dead.
 		if (r.CanMove()) {
 			if r.JustSpotted() {
 				if spotted != nil {
