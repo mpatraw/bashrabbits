@@ -179,7 +179,10 @@ func (f *directoryForest) PerformCatch() bool {
 	rab, ok := f.rabbits[loc]
 
 	if ok {
-		return rab.TryCatch(loc)
+		succ := rab.TryCatch(loc)
+		// We must update the table, else we can run into two rabbits.
+		f.rabbits[rab.Location()] = rab
+		return succ
 	}
 
 	return false
@@ -192,7 +195,10 @@ func (f *directoryForest) PerformTag(tag string) bool {
 	rab, ok := f.rabbits[loc]
 
 	if ok {
-		return rab.TryTag(loc, tag)
+		succ := rab.TryTag(loc, tag)
+		// We must update the table, else we can run into two rabbits.
+		f.rabbits[rab.Location()] = rab
+		return succ
 	}
 
 	return false
