@@ -64,20 +64,20 @@ type Rabbit struct {
 	lastSpotted	*time.Time	`json:"lastSpotted"`
 	// State of the rabbit.
 	state		RabbitState	`json:"state"`
+	
+	// These are set to the defaults.
+	idleTime	time.Duration	`json:"idleTime"`
+	fleeTime	time.Duration	`json:"fleeTime"`
 }
 
 // Creates a new rabbit and moves it to a faraway location.
 func NewRabbit(f Forest) *Rabbit {
 	r := &Rabbit{
 		f, "", "", "", time.Now(), nil, Wandering,
+		IdleTime, FleeTime,
 	}
 	r.location = f.FarawayLocation()
 	return r
-}
-
-// Changes the home of the rabbit.
-func (r *Rabbit) ChangeHome(f Forest) {
-	r.home = f
 }
 
 // This is called before every operation. The rabbit occasionally
@@ -95,24 +95,43 @@ func (r *Rabbit) wakeup() {
 	shouldMove := false
 	now := time.Now()
 	elapsed := now.Sub(r.lastMoved)
+	var to string
 	
 	if r.state == Fleeing {
-		if elapsed >= FleeTime {
+		if elapsed >= r.fleeTime {
 			shouldMove = true
+			// After fleeing the rabbit goes FAR away.
+			to = r.home.FarawayLocation()
 		}
 	} else {
-		if elapsed >= IdleTime {
+		if elapsed >= r.idleTime {
 			shouldMove = true
+			to = r.home.NearbyLocation(r.location)
 		}
 	}
 	
 	if shouldMove {
 		r.lastMoved = now
 		r.lastLocation = r.location
-		r.location = r.home.NearbyLocation(r.lastLocation)
+		r.location = to
 		// Stop fleeing, or whatever we were doing.
 		r.state = Wandering
 	}
+}
+
+// Used mostly for testing. The default is preferred.
+func (r *Rabbit) setIdleTime(d time.Duration) {
+	r.idleTime = d
+}
+
+// Used mostly for testing. The default is preferred.
+func (r *Rabbit) setFleeTime(d time.Duration) {
+	r.fleeTime = d
+}
+
+// Changes the home of the rabbit.
+func (r *Rabbit) ChangeHome(f Forest) {
+	r.home = f
 }
 
 // A place in the forest was disturbed. Possibly move, or
