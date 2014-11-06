@@ -71,7 +71,7 @@ tryagain:
 		}
 	}
 	
-	if newloc == loc && steps == 2 {
+	if newloc == loc {
 		// Guaranteed to not be the same because you must
 		// step twice to get to the same destination.
 		steps = 1
@@ -84,19 +84,33 @@ tryagain:
 
 // A random faraway location. Rabbits typically start here
 // and run here when they're fleeing.
-func (f *directoryForest) FarawayLocation() string {
-	loc := baseLocation()
+func (f *directoryForest) FarawayLocation(loc string) string {
+	newloc := baseLocation()
+	triedagain := false
 	
 	steps := 1
 	if chance(TwoStepChance) {
 		steps = 2
 	}
-	
+
+tryagain:	
 	for i := 0; i < steps; i++ {
-		if canDescend(loc) {
-			loc = randDescension(loc)
+		if canDescend(newloc) {
+			newloc = randDescension(newloc)
 		}
 	}
 	
-	return loc
+	if newloc == loc && !triedagain {
+		// Invert the steps. We can't get to the same
+		// location with different steps.
+		if steps == 1 {
+			steps = 2
+		} else if steps == 2 {
+			steps = 1
+		}
+		triedagain = true
+		goto tryagain
+	}
+	
+	return newloc
 }

@@ -20,7 +20,7 @@ func (tf TestForest) NearbyLocation(loc string) string {
 	return buffer.String()
 }
 
-func (tf TestForest) FarawayLocation() string {
+func (tf TestForest) FarawayLocation(loc string) string {
 	return "far"
 }
 

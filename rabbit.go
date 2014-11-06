@@ -32,8 +32,9 @@ type Forest interface {
 	LocationExists(loc string) bool
 	// Returns a location fairly close to the one provided.
 	NearbyLocation(loc string) string
-	// Returns a faraway location, this could be anywhere.
-	FarawayLocation() string
+	// Returns a faraway location, this could be anywhere
+	// except the location passed (unless it's the only location).
+	FarawayLocation(loc string) string
 }
 
 // A rabbit is a simple creature that likes to move around a forest. You can
@@ -67,7 +68,7 @@ func NewRabbit(f Forest) Rabbit {
 		f, "", "", "", time.Now(), nil, Wandering,
 		IdleTime, FleeTime,
 	}
-	r.location = f.FarawayLocation()
+	r.location = f.FarawayLocation("")
 	return r
 }
 
@@ -92,7 +93,7 @@ func (r *Rabbit) wakeup() {
 		if elapsed >= r.fleeTime {
 			shouldMove = true
 			// After fleeing the rabbit goes FAR away.
-			to = r.home.FarawayLocation()
+			to = r.home.FarawayLocation(r.location)
 		}
 	} else {
 		if elapsed >= r.idleTime {
