@@ -29,9 +29,6 @@ func TestMoving(t *testing.T) {
 	r := NewRabbit(tf)
 	r.setIdleTime(time.Millisecond)
 	r.setFleeTime(time.Millisecond)
-	
-	time.Sleep(time.Duration(2) * time.Millisecond)
-	r.DisturbanceAt("yo")
 	if r.Location() != "far1" {
 		t.Errorf("rabbit did not move (%s==%s)", r.Location(), "far1");
 	}

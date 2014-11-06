@@ -12,16 +12,15 @@ import (
 )
 
 func init() {
-	
+
 }
 
 func usage() {
 	fmt.Printf("usage: rabbit [stats|check|catch|tag string]\n")
-	os.Exit(0)
 }
 
 func loadDirectoryForest(filename string) *directoryForest {
-	
+
 	file, err := os.Open(filename)
 	if err != nil {
 		if !os.IsNotExist(err) {
@@ -44,7 +43,7 @@ func loadDirectoryForest(filename string) *directoryForest {
 }
 
 func saveDirectoryForest(filename string, df *directoryForest) {
-	bytes, err := json.Marshal(df)
+	bytes, err := json.MarshalIndent(df, "", "\t")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,26 +55,38 @@ func saveDirectoryForest(filename string, df *directoryForest) {
 
 func main() {
 	flag.Parse()
-	
-	if flag.NArg() == 0 {
-		usage()
-	}
-	
-	for i, arg := range flag.Args() {
-		fmt.Printf("Arg[%d]=%s\n", i, arg)
-	}
-	
+
 	savefile := filepath.Join(os.Getenv("HOME"), ".rabbit")
 	df := loadDirectoryForest(savefile)
 	defer saveDirectoryForest(savefile, df)
-	
+
+	if flag.NArg() == 0 {
+		usage()
+		return
+	}
+
 	switch flag.Arg(0) {
 	case "stats":
+		fmt.Printf("Rabbits\n");
+		fmt.Printf("...spotted:    %d\n", df.spottedCount)
+		fmt.Printf("...caught:     %d\n", df.caughtCount)
+		fmt.Printf("...killed:     %d :(\n", df.killedCount)
 	case "check":
+		spotted := df.PerformCheck()
+		if spotted != nil {
+			if spotted.Tag() != "" {
+				fmt.Printf("You see the %s rabbit!\n", spotted.Tag())
+			} else if spotted.SeenBefore() {
+				fmt.Printf("You see a familiar rabbit here.\n")
+			} else {
+				fmt.Printf("A rabbit is here!!\n")
+			}
+		}
 	case "catch":
 	case "tag":
 		if flag.NArg() < 2 {
 			usage()
+			return
 		}
 	default: usage()
 	}

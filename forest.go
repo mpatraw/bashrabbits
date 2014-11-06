@@ -14,12 +14,12 @@ const (
 	MaxRabbits	= 15
 	// Spawn chance for rabbits.
 	SpawnChance	= 0.20
-	
+
 	// Chance to ascend deeper (closer to /). The weight
 	// has to be fair, because ascending is very limited
 	// and you only have one option.
 	AscendChance	= 0.30
-	
+
 	// Chance to move twice instead of once.
 	TwoStepChance	= 0.50
 )
@@ -27,18 +27,18 @@ const (
 type directoryForest struct {
 	// List of rabbits and their locations. Only one
 	// rabbit per location.
-	rabbits		map[string]Rabbit	`json:"rabbits"`
+	rabbits		map[string]*Rabbit
 	// Number of rabbits seen.
-	spottedCount	uint			`json:"spottedCount"`
+	spottedCount	uint
 	// Number of rabbits caught.
-	caughtCount	uint			`json:"caughtCount"`
+	caughtCount	uint
 	// Number of rabbits killed. :(
-	killedCount	uint			`json:"killedCount"`
+	killedCount	uint
 }
 
 func newDirectoryForest() directoryForest {
 	return directoryForest{
-		map[string]Rabbit{}, 0, 0, 0,
+		map[string]*Rabbit{}, 0, 0, 0,
 	}
 }
 
@@ -86,16 +86,16 @@ tryagain:
 			}
 		}
 	}
-	
+
 	if newloc == loc {
 		// Guaranteed to not be the same because you must
 		// step twice to get to the same destination.
 		steps = 1
 		goto tryagain
 	}
-	
+
 	return newloc
-	
+
 }
 
 // A random faraway location. Rabbits typically start here
@@ -103,19 +103,19 @@ tryagain:
 func (f *directoryForest) FarawayLocation(loc string) string {
 	newloc := baseLocation()
 	triedagain := false
-	
+
 	steps := 1
 	if chance(TwoStepChance) {
 		steps = 2
 	}
 
-tryagain:	
+tryagain:
 	for i := 0; i < steps; i++ {
 		if canDescend(newloc) {
 			newloc = randDescension(newloc)
 		}
 	}
-	
+
 	if newloc == loc && !triedagain {
 		// Invert the steps. We can't get to the same
 		// location with different steps.
@@ -127,7 +127,7 @@ tryagain:
 		triedagain = true
 		goto tryagain
 	}
-	
+
 	return newloc
 }
 
@@ -136,22 +136,22 @@ tryagain:
 // is spotted.
 func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 	spotted = nil
-	
+
 	// We always check our current directory.
 	loc, _ := os.Getwd()
-	
-	newrabbits := map[string]Rabbit{}
+
+	newrabbits := map[string]*Rabbit{}
 
 	for _, r := range f.rabbits {
 		r.DisturbanceAt(loc)
-		
+
 		// Can't move usually means caught or dead.
 		if (r.CanMove()) {
 			if r.JustSpotted() {
 				if spotted != nil {
 					panic("Spotted two rabbits. Impossible.")
 				}
-				spotted = &r
+				spotted = r
 				f.spottedCount++
 			}
 			newrabbits[r.Location()] = r
@@ -163,12 +163,12 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 			}
 		}
 	}
-	
+
 	f.rabbits = newrabbits
-	
+
 	// See if we should repopulate.
 	f.repopulate()
-	
+
 	return
 }
 
@@ -177,23 +177,25 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 func (f *directoryForest) repopulate() {
 	for len(f.rabbits) < MinRabbits {
 		r := NewRabbit(f)
-		f.rabbits[r.Location()] = r
+		f.rabbits[r.Location()] = &r
 	}
-	
+
 	if chance(SpawnChance) {
 		r := NewRabbit(f)
-		f.rabbits[r.Location()] = r
+		f.rabbits[r.Location()] = &r
 	}
+}
+
+type forest struct {
+	Rabbits		map[string]*Rabbit
+	SpottedCount	uint
+	CaughtCount	uint
+	KilledCount	uint
 }
 
 // These are implemented because we can't encode private fields.
 func (f *directoryForest) UnmarshalJSON(b []byte) error {
-	data := struct{
-		Rabbits		map[string]Rabbit
-		SpottedCount	uint
-		CaughtCount	uint
-		KilledCount	uint
-	}{}
+	data := forest{}
 	err := json.Unmarshal(b, &data)
 	if err != nil {
 		return err
@@ -202,14 +204,20 @@ func (f *directoryForest) UnmarshalJSON(b []byte) error {
 	f.spottedCount = data.SpottedCount
 	f.caughtCount = data.CaughtCount
 	f.killedCount = data.KilledCount
+
+	// Circular reference. Couldn't marshal their home so
+	// we do it here.
+	for _, r := range f.rabbits {
+		(&r).ChangeHome(f)
+	}
 	return nil
 }
 
 func (f *directoryForest) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"Rabbits":	f.rabbits,
-		"SpottedCount":	f.spottedCount,
-		"CaughtCount":	f.caughtCount,
-		"KilledCount":	f.killedCount,
+	return json.Marshal(&forest{
+		Rabbits:	f.rabbits,
+		SpottedCount:	f.spottedCount,
+		CaughtCount:	f.caughtCount,
+		KilledCount:	f.killedCount,
 	})
 }

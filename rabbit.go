@@ -42,22 +42,22 @@ type Forest interface {
 // spot it, try to catch it, tag it, or accidentally kill it. :(
 type Rabbit struct {
 	// The forest the rabbit lives in.
-	home		Forest		`json:"-"`
+	home		Forest
 	// The current location in the forest. May be "", in which
 	// case the rabbit is no longer in the forest (dead, caught).
-	location	string		`json:"location"`
+	location	string
 	// A tag identifying this specific rabbit.
-	tag		string		`json:"tag"`
+	tag		string
 	// The last location visited. May be "", in which case the
 	// rabbit never moved.
-	lastLocation	string		`json:"lastLocation"`
+	lastLocation	string
 	// The last time the rabbit moved to new location.
-	lastMoved	time.Time	`json:"lastMoved"`
+	lastMoved	time.Time
 	// The time the rabbit was spotted last. May be nil.
-	lastSpotted	*time.Time	`json:"lastSpotted"`
+	lastSpotted	*time.Time
 	// State of the rabbit.
-	state		RabbitState	`json:"state"`
-	
+	state		RabbitState
+
 	// These are set to the defaults.
 	idleTime	time.Duration	`json:"idleTime"`
 	fleeTime	time.Duration	`json:"fleeTime"`
@@ -73,6 +73,30 @@ func NewRabbit(f Forest) Rabbit {
 	return r
 }
 
+// This is called when the rabbit flees, either after
+// FleeTime ran up, or a failed catch, or a tag.
+func (r *Rabbit) flee() {
+	if r.state != Fleeing {
+		panic("Tried to call flee() when not fleeing.")
+	}
+	r.lastMoved = time.Now()
+	r.lastLocation = r.location
+	// Run far away! We're scared.
+	r.location = r.home.FarawayLocation(r.location)
+	r.state = Wandering
+}
+
+// This is called when the rabbit wanders after IdleTime is
+// up.
+func (r *Rabbit) wander() {
+	if r.state != Wandering {
+		panic("Tried to call wander() when not wandering.")
+	}
+	r.lastMoved = time.Now()
+	r.lastLocation = r.location
+	r.location = r.home.NearbyLocation(r.location)
+}
+
 // This is called before every operation. The rabbit occasionally
 // moves.
 func (r *Rabbit) wakeup() {
@@ -84,31 +108,19 @@ func (r *Rabbit) wakeup() {
 		r.location = ""
 		return
 	}
-	
-	shouldMove := false
-	now := time.Now()
-	elapsed := now.Sub(r.lastMoved)
-	var to string
-	
+
+	elapsed := time.Now().Sub(r.lastMoved)
+
 	if r.state == Fleeing {
 		if elapsed >= r.fleeTime {
-			shouldMove = true
-			// After fleeing the rabbit goes FAR away.
-			to = r.home.FarawayLocation(r.location)
+			t := time.Now()
+			r.lastSpotted = &t
+			r.flee()
 		}
 	} else {
 		if elapsed >= r.idleTime {
-			shouldMove = true
-			to = r.home.NearbyLocation(r.location)
+			r.wander()
 		}
-	}
-	
-	if shouldMove {
-		r.lastMoved = now
-		r.lastLocation = r.location
-		r.location = to
-		// Stop fleeing, or whatever we were doing.
-		r.state = Wandering
 	}
 }
 
@@ -134,9 +146,10 @@ func (r *Rabbit) DisturbanceAt(loc string) {
 
 	// Uh-oh!
 	if r.location == loc {
-		t := time.Now()
-		r.lastSpotted = &t
-		r.state = Fleeing	
+		// We set the lastSpotted variable later. If
+		// we set it now, we have no way of knowing
+		// if this rabbit is familiar.
+		r.state = Fleeing
 	}
 }
 
@@ -155,8 +168,11 @@ func (r *Rabbit) TryCatch(loc string) bool {
 	if chance(catchchance) {
 		r.state = Caught
 		r.location = ""
+	} else {
+		// Oh-well, better luck next time.
+		r.flee()
 	}
-	
+
 	return true
 }
 
@@ -167,8 +183,9 @@ func (r *Rabbit) TryTag(loc, tag string) bool {
 	if r.location != loc {
 		return false
 	}
-	
+
 	r.tag = tag
+	r.flee()
 	return true
 }
 
@@ -190,7 +207,7 @@ func (r *Rabbit) SeenBefore() bool {
 // Returns true if this rabbit has JUST been spotted, it should
 // be fleeing.
 func (r *Rabbit) JustSpotted() bool {
-	return r.lastSpotted != nil && r.state == Fleeing
+	return r.state == Fleeing
 }
 
 // Returns the state of the rabbit.
@@ -204,23 +221,23 @@ func (r *Rabbit) CanMove() bool {
 	return r.state != Dead && r.state != Caught
 }
 
+type rabbit struct {
+	Location	string
+	Tag		string
+	LastLocation	string
+	LastMoved	time.Time
+	LastSpotted	*time.Time
+	State		RabbitState
+	IdleTime	time.Duration
+	FleeTime	time.Duration
+}
+
 func (r *Rabbit) UnmarshalJSON(b []byte) error {
-	data := struct{
-		Home		Forest
-		Location	string
-		Tag		string
-		LastLocation	string
-		LastMoved	time.Time
-		LastSpotted	*time.Time
-		State		RabbitState
-		IdleTime	time.Duration
-		FleeTime	time.Duration
-	}{}
+	data := rabbit{}
 	err := json.Unmarshal(b, &data)
 	if err != nil {
 		return err
 	}
-	r.home = data.Home
 	r.location = data.Location
 	r.tag = data.Tag
 	r.lastLocation = data.LastLocation
@@ -233,15 +250,14 @@ func (r *Rabbit) UnmarshalJSON(b []byte) error {
 }
 
 func (r *Rabbit) MarshalJSON() ([]byte, error) {
-	return json.Marshal(map[string]interface{}{
-		"Home": r.home,
-		"Location": r.location,
-		"Tag": r.tag,
-		"LastLocation": r.lastLocation,
-		"LastMoved": r.lastMoved,
-		"LastSpotted": r.lastSpotted,
-		"State": r.state,
-		"IdleTime": r.idleTime,
-		"FleeTime": r.fleeTime,
+	return json.Marshal(&rabbit{
+		Location: r.location,
+		Tag: r.tag,
+		LastLocation: r.lastLocation,
+		LastMoved: r.lastMoved,
+		LastSpotted: r.lastSpotted,
+		State: r.state,
+		IdleTime: r.idleTime,
+		FleeTime: r.fleeTime,
 	})
 }
