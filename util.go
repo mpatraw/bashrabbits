@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"io/ioutil"
 	"math"
-	//"os"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -65,4 +65,16 @@ func randDescension(path string) string {
 		panic("Tried to descend when unable")
 	}
 	return dirs[randRange(0, uint(len(dirs) - 1))]
+}
+
+// Returns true if you can ascend from this path. No ascending
+// below the home directory. The passed path must be absolute.
+func canDescend(path string) bool {
+	home := os.Getenv("HOME")
+	return strings.HasPrefix(filepath.Dir(path), home)
+}
+
+// No need to be random. You can only ascend in one direction.
+func ascend(path string) string {
+	return filepath.Dir(path)
 }
