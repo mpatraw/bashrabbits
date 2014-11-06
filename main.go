@@ -1,9 +1,11 @@
 
 package main
 
-import "flag"
-import "fmt"
-import "os"
+import (
+	"flag"
+	"fmt"
+	"os"
+)
 
 func init() {
 	

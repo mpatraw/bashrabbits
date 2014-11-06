@@ -75,8 +75,8 @@ type Rabbit struct {
 }
 
 // Creates a new rabbit and moves it to a faraway location.
-func NewRabbit(f Forest) *Rabbit {
-	r := &Rabbit{
+func NewRabbit(f Forest) Rabbit {
+	r := Rabbit{
 		f, "", "", "", time.Now(), nil, Wandering,
 		IdleTime, FleeTime,
 	}
@@ -171,7 +171,7 @@ func (r *Rabbit) TryCatch(loc string) bool {
 	return true
 }
 
-// Attempts to tag the rabbit. Right now it's 100% chance.
+// Attempts to tag the rabbit. Right now it's a 100% chance.
 func (r *Rabbit) TryTag(loc, tag string) bool {
 	r.wakeup()
 
