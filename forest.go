@@ -9,10 +9,10 @@ const (
 	// Default value.
 	MaxRabbits	= 30
 	
-	// Chance to descend deeper (closer to /). The weight
-	// has to be fair, because descending is very limited
+	// Chance to ascend deeper (closer to /). The weight
+	// has to be fair, because ascending is very limited
 	// and you only have one option.
-	DescentChance	= 0.35
+	AscentChance	= 0.35
 	
 	// Chance to move twice instead of once.
 	TwoStepChance	= 0.50
