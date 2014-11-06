@@ -3,6 +3,25 @@ package main
 
 import "time"
 
+type RabbitState int
+
+const (
+	// Initial state.
+	Wandering RabbitState = iota
+	// The rabbit is in a fleeing state when it's spotted.
+	Fleeing
+	// If the rabbit was successfully caught.
+	Caught
+	// If the rabbit died this will be the state. The rabbit only dies
+	// if the location it's in no longer exists.
+	Dead
+)
+
+// The time that elapses before a rabbit wants to moved.
+const IdleTime = time.Duration(10) * time.Minute
+// The time that elapses before a rabbit moves after being spotted.
+const FleeTime = time.Duration(5) * time.Second
+
 // A forest is a place that can be traversed. Locations in a forest
 // are simple strings.
 type Forest interface {
@@ -14,24 +33,13 @@ type Forest interface {
 	FarawayLocation() string
 }
 
-type RabbitState int
-
-const (
-	// Initial state.
-	Wandering RabbitState = iota
-	// If the rabbit was successfully caught.
-	Caught
-	// If the rabbit died this will be the state. The rabbit only dies
-	// if the location it's in no longer exists.
-	Dead
-)
-
 // A rabbit is a simple creature that likes to move around a forest. You can
 // spot it, try to catch it, tag it, or accidentally kill it. :(
 type Rabbit struct {
 	// The forest the rabbit lives in.
 	home		Forest
-	// The current location in the forest.
+	// The current location in the forest. May be "", in which
+	// case the rabbit is no longer in the forest (dead, caught).
 	location	string
 	// A tag identifying this specific rabbit.
 	tag		string
@@ -55,29 +63,59 @@ func NewRabbit(f Forest) *Rabbit {
 	return r
 }
 
-// The rabbit wakes up and and decides if it wants to move.
-func (r *Rabbit) Wakeup() {
-	if !r.IsWandering() {
+// This is called before every operation. The rabbit occasionally
+// moves.
+func (r *Rabbit) wakeup() {
+	if r.CantMove() {
 		return
 	}
-	if !r.LocationExists(r.location) {
+	if !r.home.LocationExists(r.location) {
 		r.state = Dead
+		r.location = ""
 		return
+	}
+	
+	shouldMove := false
+	now := time.Now()
+	elapsed := now.Sub(r.lastMoved)
+	
+	if r.state == Fleeing {
+		if elapsed >= FleeTime {
+			shouldMove = true
+		}
+	} else {
+		if elapsed >= IdleTime {
+			shouldMove = true
+		}
+	}
+	
+	if shouldMove {
+		r.lastMoved = now
+		r.lastLocation = r.location
+		r.location = r.home.NearbyLocation(r.lastLocation)
+		// Stop fleeing, or whatever we were doing.
+		r.state = Wandering
 	}
 }
 
-// The rabbit was spotted, make it flee.
-func (r *Rabbit) Spot() {
-	t := time.Now()
-	r.lastSpotted = &t
+// A place in the forest was disturbed. Possibly move, or
+// if the place is here, the rabbit is spotted.
+func (r *Rabbit) DisturbanceAt(loc string) {
+	r.wakeup()
 
+	// Uh-oh!
+	if r.location == loc {
+		t := time.Now()
+		r.lastSpotted = &t
+		r.state = Fleeing	
+	}
 }
 
-func (r *Rabbit) TryCatch() {
-
+func (r *Rabbit) TryCatch(loc string) {
+	r.wakeup()
 }
 
-func (r *Rabbit) TryTag() {
+func (r *Rabbit) TryTag(loc, tag string) {
 
 }
 
@@ -97,14 +135,6 @@ func (r *Rabbit) State() RabbitState {
 	return r.state
 }
 
-func (r *Rabbit) IsWandering() bool {
-	return r.state == Wandering
-}
-
-func (r *Rabbit) IsCaught() bool {
-	return r.state == Caught
-}
-
-func (r *Rabbit) IsDead() bool {
-	return r.state == Dead
+func (r *Rabbit) CantMove() bool {
+	return r.state == Dead || r.state == Caught
 }
