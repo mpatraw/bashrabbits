@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+// Uses /dev/urandom to generate random numbers. We don't
+// need to recreate generated numbers, so we don't save
+// a RNG state.
 func randFloat() float64 {
 	b := make([]byte, 8)
 	rand.Read(b)
@@ -15,6 +18,7 @@ func randFloat() float64 {
 	return math.MaxFloat64 / math.Float64frombits(bits)
 }
 
+// A state the rabbit can be in.
 type RabbitState int
 
 const (
@@ -147,6 +151,9 @@ func (r *Rabbit) DisturbanceAt(loc string) {
 	}
 }
 
+// Attempts to catch the rabbit. The rabbit first check if
+// it already moved with wakeup(). The chance to catch the
+// rabbit is the inverse of the time is has left before moving.
 func (r *Rabbit) TryCatch(loc string) bool {
 	r.wakeup()
 
@@ -164,6 +171,7 @@ func (r *Rabbit) TryCatch(loc string) bool {
 	return true
 }
 
+// Attempts to tag the rabbit. Right now it's 100% chance.
 func (r *Rabbit) TryTag(loc, tag string) bool {
 	r.wakeup()
 
@@ -175,26 +183,34 @@ func (r *Rabbit) TryTag(loc, tag string) bool {
 	return true
 }
 
+// Returns the current location of the rabbit.
 func (r *Rabbit) Location() string {
 	return r.location
 }
 
+// Returns the current tag of the rabbit, "" is none.
 func (r *Rabbit) Tag() string {
 	return r.tag
 }
 
+// Returns true if this rabbit has been seen before.
 func (r *Rabbit) SeenBefore() bool {
 	return r.lastSpotted != nil
 }
 
+// Returns true if this rabbit has JUST been spotted, it should
+// be fleeing.
 func (r *Rabbit) JustSpotted() bool {
 	return r.lastSpotted != nil && r.state == Fleeing
 }
 
+// Returns the state of the rabbit.
 func (r *Rabbit) State() RabbitState {
 	return r.state
 }
 
+// Returns true if the rabbit can't move, usually because it
+// is dead or caught.
 func (r *Rabbit) CantMove() bool {
 	return r.state == Dead || r.state == Caught
 }
