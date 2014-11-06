@@ -52,23 +52,33 @@ func (f *directoryForest) LocationExists(loc string) bool {
 // exists at the new location. So we just lose rabbits
 // if one encounters another.
 func (f *directoryForest) NearbyLocation(loc string) string {
+	newloc := loc
+
 	steps := 1
 	if chance(TwoStepChance) {
 		steps = 2
 	}
-	
+
+tryagain:
 	for i := 0; i < steps; i++ {
 		// Can't move.
-		if !canAscend(loc) && !canDescend(loc) {
-			return loc
-		} else if chance(AscendChance) && canAscend(loc) {
-			loc = ascend(loc)
+		if !canAscend(newloc) && !canDescend(newloc) {
+			return newloc
+		} else if chance(AscendChance) && canAscend(newloc) {
+			newloc = ascend(newloc)
 		} else {
-			loc = randDescension(loc)
+			newloc = randDescension(newloc)
 		}
 	}
 	
-	return loc
+	if newloc == loc && steps == 2 {
+		// Guaranteed to not be the same because you must
+		// step twice to get to the same destination.
+		steps = 1
+		goto tryagain
+	}
+	
+	return newloc
 	
 }
 
