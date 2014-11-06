@@ -2,21 +2,8 @@
 package main
 
 import (
-	"encoding/binary"
-	"crypto/rand"
-	"math"
 	"time"
 )
-
-// Uses /dev/urandom to generate random numbers. We don't
-// need to recreate generated numbers, so we don't save
-// a RNG state.
-func randFloat() float64 {
-	b := make([]byte, 8)
-	rand.Read(b)
-	bits := binary.BigEndian.Uint64(b)
-	return math.MaxFloat64 / math.Float64frombits(bits)
-}
 
 // A state the rabbit can be in.
 type RabbitState int

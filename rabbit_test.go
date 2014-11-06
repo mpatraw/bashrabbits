@@ -48,3 +48,17 @@ func TestMoving(t *testing.T) {
 		t.Errorf("rabbit did not flee somewhere far")
 	}
 }
+
+func TestDirectoryForest(t *testing.T) {
+	f := newDirectoryForest()
+	t.Logf("%v\n", f);
+}
+
+func TestUtil(t *testing.T) {
+	for i := 0; i < 1000; i++ {
+		r := randRange(1, 6)
+		if r < 1 || r > 6 {
+			t.Errorf("randRange() returned out of range (%d)", r)
+		}
+	}
+}
