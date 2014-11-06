@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 )
 
@@ -133,8 +134,11 @@ tryagain:
 // Anytime a location is entered, a check is performed. This
 // function updates every rabbit and returns a rabbit if one
 // is spotted.
-func (f *directoryForest) CheckLocation(loc string) (spotted *Rabbit) {
+func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 	spotted = nil
+	
+	// We always check our current directory.
+	loc, _ := os.Getwd()
 	
 	newrabbits := map[string]Rabbit{}
 
@@ -142,8 +146,11 @@ func (f *directoryForest) CheckLocation(loc string) (spotted *Rabbit) {
 		r.DisturbanceAt(loc)
 		
 		// Can't move usually means caught or dead.
-		if (!r.CantMove()) {
+		if (r.CanMove()) {
 			if r.JustSpotted() {
+				if spotted != nil {
+					panic("Spotted two rabbits. Impossible.")
+				}
 				spotted = &r
 				f.spottedCount++
 			}
@@ -160,12 +167,14 @@ func (f *directoryForest) CheckLocation(loc string) (spotted *Rabbit) {
 	f.rabbits = newrabbits
 	
 	// See if we should repopulate.
-	f.populate()
+	f.repopulate()
 	
 	return
 }
 
-func (f *directoryForest) populate() {
+// Repopulated the forest if under the minimum number of rabbits
+// we want. Otherwise, chance a rabbit will spawn.
+func (f *directoryForest) repopulate() {
 	for len(f.rabbits) < MinRabbits {
 		r := NewRabbit(f)
 		f.rabbits[r.Location()] = r
@@ -175,4 +184,32 @@ func (f *directoryForest) populate() {
 		r := NewRabbit(f)
 		f.rabbits[r.Location()] = r
 	}
+}
+
+// These are implemented because we can't encode private fields.
+func (f *directoryForest) UnmarshalJSON(b []byte) error {
+	data := struct{
+		Rabbits		map[string]Rabbit
+		SpottedCount	uint
+		CaughtCount	uint
+		KilledCount	uint
+	}{}
+	err := json.Unmarshal(b, &data)
+	if err != nil {
+		return err
+	}
+	f.rabbits = data.Rabbits
+	f.spottedCount = data.SpottedCount
+	f.caughtCount = data.CaughtCount
+	f.killedCount = data.KilledCount
+	return nil
+}
+
+func (f *directoryForest) MarshalJSON() ([]byte, error) {
+	return json.Marshal(map[string]interface{}{
+		"Rabbits":	f.rabbits,
+		"SpottedCount":	f.spottedCount,
+		"CaughtCount":	f.caughtCount,
+		"KilledCount":	f.killedCount,
+	})
 }

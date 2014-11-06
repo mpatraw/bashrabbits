@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -75,7 +76,7 @@ func NewRabbit(f Forest) Rabbit {
 // This is called before every operation. The rabbit occasionally
 // moves.
 func (r *Rabbit) wakeup() {
-	if r.CantMove() {
+	if !r.CanMove() {
 		return
 	}
 	if !r.home.LocationExists(r.location) {
@@ -199,6 +200,48 @@ func (r *Rabbit) State() RabbitState {
 
 // Returns true if the rabbit can't move, usually because it
 // is dead or caught.
-func (r *Rabbit) CantMove() bool {
-	return r.state == Dead || r.state == Caught
+func (r *Rabbit) CanMove() bool {
+	return r.state != Dead && r.state != Caught
+}
+
+func (r *Rabbit) UnmarshalJSON(b []byte) error {
+	data := struct{
+		Home		Forest
+		Location	string
+		Tag		string
+		LastLocation	string
+		LastMoved	time.Time
+		LastSpotted	*time.Time
+		State		RabbitState
+		IdleTime	time.Duration
+		FleeTime	time.Duration
+	}{}
+	err := json.Unmarshal(b, &data)
+	if err != nil {
+		return err
+	}
+	r.home = data.Home
+	r.location = data.Location
+	r.tag = data.Tag
+	r.lastLocation = data.LastLocation
+	r.lastMoved = data.LastMoved
+	r.lastSpotted = data.LastSpotted
+	r.state = data.State
+	r.idleTime = data.IdleTime
+	r.fleeTime = data.FleeTime
+	return nil
+}
+
+func (r *Rabbit) MarshalJSON() ([]byte, error) {
+	return json.Marshal(map[string]interface{}{
+		"Home": r.home,
+		"Location": r.location,
+		"Tag": r.tag,
+		"LastLocation": r.lastLocation,
+		"LastMoved": r.lastMoved,
+		"LastSpotted": r.lastSpotted,
+		"State": r.state,
+		"IdleTime": r.idleTime,
+		"FleeTime": r.fleeTime,
+	})
 }
