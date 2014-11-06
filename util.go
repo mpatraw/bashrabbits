@@ -32,6 +32,11 @@ func randRange(low, high uint) uint {
 	return uint(math.Floor(f)) + low
 }
 
+// Returns true when under the specified chance.
+func chance(f float64) bool {
+	return randFloat() < f
+}
+
 // Returns the directory listing as full path names. The passed path
 // must be absolute.
 func listDirs(path string) []string {
@@ -77,4 +82,10 @@ func canAscend(path string) bool {
 // No need to be random. You can only ascend in one direction.
 func ascend(path string) string {
 	return filepath.Dir(path)
+}
+
+// This is the furthest we can ascend.
+func baseLocation() string {
+	home := os.Getenv("HOME")
+	return home
 }
