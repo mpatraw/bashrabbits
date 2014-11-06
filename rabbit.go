@@ -12,6 +12,8 @@ type RabbitState int
 const (
 	// Initial state.
 	Wandering RabbitState = iota
+	// Transient state. The rabbit will move to fleeing.
+	Spotted
 	// The rabbit is in a fleeing state when it's spotted.
 	Fleeing
 	// If the rabbit was successfully caught.
@@ -109,6 +111,12 @@ func (r *Rabbit) wakeup() {
 		return
 	}
 
+	// Immediately move to the fleeing state. The rabbit
+	// hasn't JUST been spotted, it's been sitting here.
+	if r.state == Spotted {
+		r.state = Fleeing
+	}
+
 	elapsed := time.Now().Sub(r.lastMoved)
 
 	if r.state == Fleeing {
@@ -149,7 +157,7 @@ func (r *Rabbit) DisturbanceAt(loc string) {
 		// We set the lastSpotted variable later. If
 		// we set it now, we have no way of knowing
 		// if this rabbit is familiar.
-		r.state = Fleeing
+		r.state = Spotted
 	}
 }
 
@@ -204,10 +212,10 @@ func (r *Rabbit) SeenBefore() bool {
 	return r.lastSpotted != nil
 }
 
-// Returns true if this rabbit has JUST been spotted, it should
-// be fleeing.
+// Returns true if this rabbit has JUST been spotted. This
+// state will immediately move to the fleeing state.
 func (r *Rabbit) JustSpotted() bool {
-	return r.state == Fleeing
+	return r.state == Spotted
 }
 
 // Returns the state of the rabbit.
