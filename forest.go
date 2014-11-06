@@ -148,7 +148,8 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 		if (r.CanMove()) {
 			if r.JustSpotted() {
 				if spotted != nil {
-					panic("Spotted two rabbits. Impossible.")
+					// XXX: Shouldn't happen.
+					//panic("Spotted two rabbits. Impossible.")
 				}
 				spotted = r
 				f.spottedCount++
