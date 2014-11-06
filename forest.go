@@ -12,7 +12,7 @@ const (
 	// Chance to ascend deeper (closer to /). The weight
 	// has to be fair, because ascending is very limited
 	// and you only have one option.
-	AscendChance	= 0.35
+	AscendChance	= 0.30
 	
 	// Chance to move twice instead of once.
 	TwoStepChance	= 0.50
@@ -64,10 +64,18 @@ tryagain:
 		// Can't move.
 		if !canAscend(newloc) && !canDescend(newloc) {
 			return newloc
-		} else if chance(AscendChance) && canAscend(newloc) {
-			newloc = ascend(newloc)
+		} else if chance(AscendChance) {
+			if canAscend(newloc) {
+				newloc = ascend(newloc)
+			} else {
+				newloc = randDescension(newloc)
+			}
 		} else {
-			newloc = randDescension(newloc)
+			if canDescend(newloc) {
+				newloc = randDescension(newloc)
+			} else {
+				newloc = ascend(newloc)
+			}
 		}
 	}
 	
