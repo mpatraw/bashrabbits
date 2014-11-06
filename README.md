@@ -1,11 +1,11 @@
 
 # Rabbit
 
-Rabbit is a game that is being played all of the time in your file system. The goal is to catch and tag as many rabbits as possible.
+Rabbit is a game that is played in your file system. The goal is to catch and tag as many rabbits as possible.
 
 ## How to Install
 
-If you have Go installed, running `go get github.com/mpatraw/Rabbit`. Otherwise you will have to download one of the binary packages when they're put up.
+If you have Go installed, run `go get github.com/mpatraw/Rabbit`. Otherwise you will have to download one of the binary packages when they're put up.
 
 ## How to Play
 
