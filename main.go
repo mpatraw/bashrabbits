@@ -43,7 +43,7 @@ func loadDirectoryForest(filename string) *directoryForest {
 }
 
 func saveDirectoryForest(filename string, df *directoryForest) {
-	bytes, err := json.MarshalIndent(df, "", "\t")
+	bytes, err := json.Marshal(df)
 	if err != nil {
 		log.Fatal(err)
 	}
