@@ -159,7 +159,7 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 			if r.State() == Dead {
 				f.killedCount++
 			} else if r.State() == Caught {
-				f.caughtCount++
+				// Being caught is updated in the TryCatch.
 			}
 		}
 	}
@@ -179,9 +179,11 @@ func (f *directoryForest) PerformCatch() bool {
 	rab, ok := f.rabbits[loc]
 
 	if ok {
+		delete(f.rabbits, rab.Location())
 		succ := rab.TryCatch(loc)
 		// We must update the table, else we can run into two rabbits.
 		f.rabbits[rab.Location()] = rab
+		f.caughtCount++
 		return succ
 	}
 
@@ -195,6 +197,7 @@ func (f *directoryForest) PerformTag(tag string) bool {
 	rab, ok := f.rabbits[loc]
 
 	if ok {
+		delete(f.rabbits, rab.Location())
 		succ := rab.TryTag(loc, tag)
 		// We must update the table, else we can run into two rabbits.
 		f.rabbits[rab.Location()] = rab

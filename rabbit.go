@@ -117,16 +117,12 @@ func (r *Rabbit) wakeup() {
 		r.state = Fleeing
 	}
 
-	elapsed := time.Now().Sub(r.lastMoved)
-
 	if r.state == Fleeing {
-		if elapsed >= r.fleeTime {
-			t := time.Now()
-			r.lastSpotted = &t
+		if time.Now().Sub(*r.lastSpotted) >= r.fleeTime {
 			r.flee()
 		}
 	} else {
-		if elapsed >= r.idleTime {
+		if time.Now().Sub(r.lastMoved) >= r.idleTime {
 			r.wander()
 		}
 	}
@@ -154,10 +150,9 @@ func (r *Rabbit) DisturbanceAt(loc string) {
 
 	// Uh-oh!
 	if r.location == loc {
-		// We set the lastSpotted variable later. If
-		// we set it now, we have no way of knowing
-		// if this rabbit is familiar.
 		r.state = Spotted
+		t := time.Now()
+		r.lastSpotted = &t
 	}
 }
 
@@ -179,6 +174,7 @@ func (r *Rabbit) TryCatch(loc string) bool {
 	} else {
 		// Oh-well, better luck next time.
 		r.flee()
+		return false
 	}
 
 	return true
