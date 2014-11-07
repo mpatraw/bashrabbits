@@ -2,6 +2,8 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -30,24 +32,38 @@ func loadDirectoryForest(filename string) *directoryForest {
 			return &df
 		}
 	}
-	var df directoryForest
-	bytes, err := ioutil.ReadAll(file)
+	defer file.Close()
+
+	fz, err := gzip.NewReader(file)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer fz.Close()
+
+	bytes, err := ioutil.ReadAll(fz)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var df directoryForest
 	err = json.Unmarshal(bytes, &df)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return &df
 }
 
 func saveDirectoryForest(filename string, df *directoryForest) {
-	bytes, err := json.Marshal(df)
+	bs, err := json.Marshal(df)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = ioutil.WriteFile(filename, bytes, 0644)
+	var b bytes.Buffer
+	w := gzip.NewWriter(&b)
+	w.Write(bs)
+	w.Close()
+	err = ioutil.WriteFile(filename, b.Bytes(), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,8 +92,6 @@ func main() {
 		if spotted != nil {
 			if spotted.Tag() != "" {
 				fmt.Printf("You see the %s rabbit!\n", spotted.Tag())
-			} else if spotted.SeenBefore() {
-				fmt.Printf("You see a familiar rabbit here.\n")
 			} else {
 				fmt.Printf("A rabbit is here!!\n")
 			}

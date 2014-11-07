@@ -203,11 +203,6 @@ func (r *Rabbit) Tag() string {
 	return r.tag
 }
 
-// Returns true if this rabbit has been seen before.
-func (r *Rabbit) SeenBefore() bool {
-	return r.lastSpotted != nil
-}
-
 // Returns true if this rabbit has JUST been spotted. This
 // state will immediately move to the fleeing state.
 func (r *Rabbit) JustSpotted() bool {
