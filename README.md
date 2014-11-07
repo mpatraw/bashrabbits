@@ -11,6 +11,10 @@ If you have Go installed, you can run `go get github.com/mpatraw/rabbit`. Otherw
 
 `rabbit` offers a couple of commands to find and catch rabbits. The first and most obvious of which is `rabbit check` which checks the current directory for a rabbit. If there is one, you will see "A rabbit is here!!". You only have a few seconds to either catch it or tag it.
 
+Only a few rabbits will exist at any given time (1-15), all of which will never go below your home directory ($HOME). Generally the rabbits will move about an area slowly, only doing 1-2 directory hops every few minutes. The only time they move quickly is when they're spotted, once they leave (a few seconds later) they could be almost anywhere in your home tree.
+
+Killing rabbits is a danger. You can kill a rabbit (accidentally or intentionally) by destroying where they are, either by a `mv` or a `rm -r`. One goal is to avoid killing as many rabbits as possible, but sometimes it's just unavoidable. :(
+
 ### Flags & Commands
 
 __Flags__
@@ -49,10 +53,6 @@ fn ls { /bin/ls $*; rabbit check }
 fn catchr { rabbit catch }
 fn tagr { rabbit tag $* }
 ```
-
-So, you must be wondering, "how do you kill rabbits?" Well, when you remove or move directories around, rabbits in those directories die.
-
-Avoid killing too many rabbits.
 
 ### Example Session
 
