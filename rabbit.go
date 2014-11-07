@@ -61,8 +61,8 @@ type Rabbit struct {
 	state		RabbitState
 
 	// These are set to the defaults.
-	idleTime	time.Duration	`json:"idleTime"`
-	fleeTime	time.Duration	`json:"fleeTime"`
+	idleTime	time.Duration
+	fleeTime	time.Duration
 }
 
 // Creates a new rabbit and moves it to a faraway location.
