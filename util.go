@@ -56,7 +56,7 @@ func listDirs(path string) []string {
 }
 
 // Returns true if you can descend from this path, descending is going
-// down a direction, as opposed to up (`cd ..` is up). The passed path
+// down a directory, as opposed to up (`cd ..` is up). The passed path
 // must be absolute
 func canDescend(path string) bool {
 	dirs := listDirs(path)
