@@ -54,10 +54,50 @@ So, you must be wondering, "how do you kill rabbits?" Well, when you remove or m
 
 Avoid killing too many rabbits.
 
+### Example Session
+
+```
+; ls
+go  mine  others
+; cd mine
+; cd ..
+; cd others
+A rabbit is here!!
+(_/  _#
+'.'_( )
+; catch
+You caught the rabbit!
+_________
+| ()|() |
++---+---+
+|(")|(")|
+---------
+; rabbit stats
+Rabbits
+...spotted:    10
+...caught:     4
+...killed:     1
+; ls
+dwm
+; cd ..
+; ls
+go  mine  others
+; cd ..
+A rabbit is here!!
+(_/  _#
+'.'_( )
+; catch
+The rabbit got away...
+  o __(\\
+   ) _ --
+ //    \\
+;
+```
+
 ## How does it Work?
 
 Don't worry, there aren't __actually__ rabbits in your directories. The program keep a record of where every rabbit is and it's state in `$HOME/.rabbit`, and moves and spawns new ones when necessary.
 
-### Thanks
+## Thanks
 
 To `bh`, for some of the rabbit ASCII art.
