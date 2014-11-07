@@ -14,14 +14,20 @@ If you have Go installed, run `go get github.com/mpatraw/Rabbit`. Otherwise you 
 Obviously typing these out everytime you're in a directory is tiring, so you can add this to your `.bashrc` file.
 
 ```bash
-rcd() {
+cdrabbit() {
 	cd $*
 	rabbit check
 }
-rls() {
+lsrabbit() {
 	ls $*
 	rabbit check
 }
-alias cd='rcd'
-alias ls='rls'
+alias cd='cdrabbit'
+alias ls='lsrabbit'
+alias tagr='rabbit tag'
+alias catchr='rabbit catch'
 ```
+
+## How does it Work?
+
+Don't worry, there aren't __actually__ rabbits in your directories. The program keep a record of where every rabbit is and it's state in `$HOME/.rabbit`, and moves and spawns new ones when necessary.
