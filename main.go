@@ -177,7 +177,7 @@ func catch(df *directoryForest) {
 			}
 		}
 	} else {
-		fmt.Printf("There are no rabbits here.\n")
+		fmt.Printf("Too slow or you're seeing things.\n")
 	}
 }
 
@@ -196,7 +196,7 @@ func tag(df *directoryForest, tag string) {
 			}
 		}
 	} else {
-		fmt.Printf("There are no rabbits here.\n")
+		fmt.Printf("Too slow or you're seeing things.\n")
 	}
 }
 
