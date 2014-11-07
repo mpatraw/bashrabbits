@@ -231,6 +231,7 @@ func (f *directoryForest) repopulate() {
 	}
 }
 
+// Used for marshalling/unmarshalling.
 type forest struct {
 	Rabbits		map[string]*Rabbit
 	SpottedCount	uint

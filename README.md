@@ -1,15 +1,28 @@
 
 # Rabbit
 
-Rabbit is a game that is played in your file system. The goal is to catch and tag as many rabbits as possible.
+Rabbit is a game that is played in your file system. The goal is to catch and tag as many rabbits as possible, while avoiding killing too many.
 
 ## How to Install
 
-If you have Go installed, run `go get github.com/mpatraw/rabbit`. Otherwise you will have to download one of the binary packages when they're put up.
+If you have Go installed, you can run `go get github.com/mpatraw/rabbit`. Otherwise you will have to download one of the binary packages when they're put up.
 
 ## How to Play
 
-`rabbit` offers a couple of commands to find and catch rabbits. The first and most obvious of which is `rabbit check` which checks the current directory for a rabbit. If there is one, you will see "A rabbit is here!!". You only have a few seconds to either catch it with the `rabbit catch` command or tag it with `rabbit tag <string>` command. One last command `rabbit stats` tells you how many rabbits you've seen, caught, and... killed. Yes, you can kill rabbits, mostly by accident.
+`rabbit` offers a couple of commands to find and catch rabbits. The first and most obvious of which is `rabbit check` which checks the current directory for a rabbit. If there is one, you will see "A rabbit is here!!". You only have a few seconds to either catch it or tag it.
+
+### Flags & Commands
+
+__Flags__
+* -a: Adds ASCII graphics at the end of commands.
+
+__Commands__
+* check: Checks the current directory for a rabbit.
+* catch: Attempts to catch a rabbit in the current directory.
+* tag "string": Tries to tag the rabbit in the current directory with "string".
+* stats: Prints the stats of rabbits seen, caught, killed, etc.
+
+### Extras
 
 Obviously typing these out everytime you're in a directory is tiring, so you can add this to your `.bashrc` file.
 
@@ -37,8 +50,14 @@ fn catchr { rabbit catch }
 fn tagr { rabbit tag $* }
 ```
 
-So, you must be wondering, "how do you kill rabbits?" Well, when you remove or move directories around, rabbit may have lived there and now dead.
+So, you must be wondering, "how do you kill rabbits?" Well, when you remove or move directories around, rabbits in those directories die.
+
+Avoid killing too many rabbits.
 
 ## How does it Work?
 
 Don't worry, there aren't __actually__ rabbits in your directories. The program keep a record of where every rabbit is and it's state in `$HOME/.rabbit`, and moves and spawns new ones when necessary.
+
+### Thanks
+
+To `bh`, for some of the rabbit ASCII art.

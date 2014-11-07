@@ -220,6 +220,7 @@ func (r *Rabbit) CanMove() bool {
 	return r.state != Dead && r.state != Caught
 }
 
+// Used for marshalling/unmarshalling.
 type rabbit struct {
 	Location	string
 	Tag		string
