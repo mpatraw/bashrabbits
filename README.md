@@ -28,7 +28,7 @@ alias tagr='rabbit tag'
 alias catchr='rabbit catch'
 ```
 
-Or if you use __rc__.
+Or if you use __rc__, add this to `.rcrc`.
 
 ```rc
 fn cd { builtin cd $*; rabbit check }
