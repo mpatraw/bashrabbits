@@ -9,7 +9,7 @@ If you have Go installed, run `go get github.com/mpatraw/Rabbit`. Otherwise you 
 
 ## How to Play
 
-`rabbit` offers a couple of commands to find and catch rabbits. The first and most obvious of which is `rabbit check` which checks the current directory for a rabbit. If there is one, which you will know by a message telling you so, you only have a few seconds to either catch it with the `rabbit catch` command or tag it with `rabbit tag <string>` command. One last command `rabbit stats` tells you how many rabbits you've seen, caught, and... killed. Yes, you can kill rabbits, mostly by accident.
+`rabbit` offers a couple of commands to find and catch rabbits. The first and most obvious of which is `rabbit check` which checks the current directory for a rabbit. If there is one, you will see "A rabbit is here!!". You only have a few seconds to either catch it with the `rabbit catch` command or tag it with `rabbit tag <string>` command. One last command `rabbit stats` tells you how many rabbits you've seen, caught, and... killed. Yes, you can kill rabbits, mostly by accident.
 
 Obviously typing these out everytime you're in a directory is tiring, so you can add this to your `.bashrc` file.
 
