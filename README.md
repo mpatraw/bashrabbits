@@ -34,7 +34,7 @@ Or if you use __rc__, add this to `.rcrc`.
 fn cd { builtin cd $*; rabbit check }
 fn ls { /bin/ls $*; rabbit check }
 fn catchr { rabbit catch }
-fn tagr { rabbit tag }
+fn tagr { rabbit tag $* }
 ```
 
 So, you must be wondering, "how do you kill rabbits?" Well, when you remove or move directories around, rabbit may have lived there and now dead.
