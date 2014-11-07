@@ -191,7 +191,9 @@ func (f *directoryForest) PerformCatch() bool {
 		succ := rab.TryCatch(loc)
 		// We must update the table, else we can run into two rabbits.
 		f.rabbits[rab.Location()] = rab
-		f.caughtCount++
+		if succ {
+			f.caughtCount++
+		}
 		return succ
 	}
 
