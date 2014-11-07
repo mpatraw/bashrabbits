@@ -131,6 +131,14 @@ tryagain:
 	return newloc
 }
 
+// Returns true if a rabbit is here. Only useful for checking
+// before performing an action.
+func (f *directoryForest) IsRabbitHere() bool {
+	loc, _ := os.Getwd()
+	_, ok := f.rabbits[loc]
+	return ok
+}
+
 // Anytime a location is entered, a check is performed. This
 // function updates every rabbit and returns a rabbit if one
 // is spotted.

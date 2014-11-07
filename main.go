@@ -83,10 +83,14 @@ func main() {
 			}
 		}
 	case "catch":
-		if df.PerformCatch() {
-			fmt.Printf("You caught the rabbit!\n")
+		if df.IsRabbitHere() {
+			if df.PerformCatch() {
+				fmt.Printf("You caught the rabbit!\n")
+			} else {
+				fmt.Printf("The rabbit got away...\n")
+			}
 		} else {
-			fmt.Printf("The rabbit got away...\n")
+			fmt.Printf("There are no rabbits here.\n")
 		}
 	case "tag":
 		if flag.NArg() < 2 {
@@ -94,10 +98,14 @@ func main() {
 			return
 		}
 
-		if df.PerformTag(flag.Arg(1)) {
-			fmt.Printf("You successfully tagged the rabbit!\n")
+		if df.IsRabbitHere() {
+			if df.PerformTag(flag.Arg(1)) {
+				fmt.Printf("You successfully tagged the rabbit!\n")
+			} else {
+				fmt.Printf("The rabbit got away...\n")
+			}
 		} else {
-			fmt.Printf("The rabbit got away...\n")
+			fmt.Printf("There are no rabbits here.\n")
 		}
 	default: usage()
 	}
