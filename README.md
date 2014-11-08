@@ -98,7 +98,7 @@ The rabbit got away...
 
 ## How does it Work?
 
-Don't worry, there aren't __actually__ rabbits in your directories. The program keep a record of where every rabbit is and it's state in `$HOME/.rabbit`, and moves and spawns new ones when necessary.
+Don't worry, there aren't __actually__ rabbits in your directories. The program keep a record of where every rabbit is and its state in `$HOME/.rabbit`, and moves and spawns new ones when necessary.
 
 ## Thanks
 
