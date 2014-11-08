@@ -5,7 +5,9 @@ Rabbit is a game that is played in your file system. The goal is to catch and ta
 
 ## How to Install
 
-If you have Go installed, you can run `go get github.com/mpatraw/rabbit`. Otherwise you will have to download one of the binary packages when they're put up.
+If you have Go installed, you can run `go get github.com/mpatraw/rabbit`. Or you can grab one of the binaries [here](https://github.com/mpatraw/rabbit/releases/tag/v1.0-beta).
+
+If you have Go installed and setup, typing `rabbit` in your shell should automatically work. If not, however, you need add them to your PATH variable. Running `sudo mv ./rabbit /usr/bin/rabbit` should do that.
 
 ## How to Play
 
