@@ -28,6 +28,8 @@ type directoryForest struct {
 	// List of rabbits and their locations. Only one
 	// rabbit per location.
 	rabbits		map[string]*Rabbit
+	// Tracks at a given location. Cleared and updated after every move.
+	tracks		map[string]bool
 	// Number of rabbits seen.
 	spottedCount	uint
 	// Number of rabbits caught.
@@ -38,7 +40,7 @@ type directoryForest struct {
 
 func newDirectoryForest() directoryForest {
 	return directoryForest{
-		map[string]*Rabbit{}, 0, 0, 0,
+		map[string]*Rabbit{}, map[string]bool{}, 0, 0, 0,
 	}
 }
 
