@@ -111,6 +111,7 @@ Some planned features:
 * Items. You can find items to help your search for rabbits. You can also trade caught rabbits for items.
 * Tagged rabbits are easier to find again.
 * Wolves. They kill rabbits and every now and then can steal your caught rabbits. They howl when they're near so you can search and kill them.
+* Cute spiders? /// ^ oo ^ \\\
 
 
 ## Thanks
