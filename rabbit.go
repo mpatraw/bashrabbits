@@ -7,7 +7,10 @@ import (
 )
 
 // A state the rabbit can be in.
-type RabbitState int
+type RabbitState uint
+
+// An event that can be performed on a rabbit.
+type RabbitAction uint
 
 const (
 	// Initial state.
@@ -21,6 +24,17 @@ const (
 	// If the rabbit died this will be the state. The rabbit only dies
 	// if the location it's in no longer exists.
 	Dead
+)
+
+const (
+	// Default action. This is performed on every rabbit.
+	Wait RabbitAction = iota
+	// A rabbit is spotted.
+	Spot
+	// When a catch attempt succeeds.
+	Catch
+	// When a rabbit dies. :(
+	Kill
 )
 
 // The time that elapses before a rabbit wants to moved.
@@ -63,6 +77,27 @@ type Rabbit struct {
 	// These are set to the defaults.
 	idleTime	time.Duration
 	fleeTime	time.Duration
+}
+
+var rMachine Machine
+
+func init() {
+	// Create the rabbit state machine.
+	rMachine = NewMachine()
+
+	rMachine.AddTransition(State(Wandering), Action(Wait), State(Wandering))
+	rMachine.AddTransition(State(Wandering), Action(Spot), State(Spotted))
+	rMachine.AddTransition(State(Wandering), Action(Catch), State(Caught))
+	rMachine.AddTransition(State(Wandering), Action(Kill), State(Dead))
+
+	rMachine.AddTransition(State(Spotted), Action(Wait), State(Fleeing))
+	// Can't spot an already spotted rabbit.
+	rMachine.AddTransition(State(Spotted), Action(Catch), State(Caught))
+	rMachine.AddTransition(State(Spotted), Action(Kill), State(Dead))
+
+	rMachine.AddTransition(State(Fleeing), Action(Wait), State(Wandering))
+	// Can't spot or catch a fleeing rabbit.
+	rMachine.AddTransition(State(Fleeing), Action(Kill), State(Dead))
 }
 
 // Creates a new rabbit and moves it to a faraway location.
