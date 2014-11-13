@@ -164,17 +164,14 @@ func (r *Rabbit) EnterState(state State) {
 	}
 }
 
-// This is called before every operation. The rabbit occasionally
-// moves.
-func (r *Rabbit) wakeup() {
-	if !r.CanMove() {
-		return
-	}
-	if !r.home.LocationExists(r.location) {
-		rMachine.Perform(r, Kill)
-		return
+// This is called before every operation. Returns true if the rabbit
+// awake and ready.
+func (r *Rabbit) wakeup() bool {
+	if !r.IsPlaying() {
+		return false
 	}
 	rMachine.Perform(r, Wait)
+	return true
 }
 
 // Used mostly for testing. The default is preferred.
@@ -195,17 +192,21 @@ func (r *Rabbit) ChangeHome(f Forest) {
 // A place in the forest was disturbed. Possibly move, or
 // if the place is here, the rabbit is spotted.
 func (r *Rabbit) DisturbanceAt(loc string) {
-	r.wakeup()
+	if !r.wakeup() {
+		return
+	}
 	if r.location == loc {
 		rMachine.Perform(r, Spot)
 	}
 }
 
-// Attempts to catch the rabbit. The rabbit first check if
+// Attempts to catch the rabbit. The rabbit first checks if
 // it already moved with wakeup(). The chance to catch the
 // rabbit is the inverse of the time is has left before moving.
 func (r *Rabbit) TryCatch(loc string) bool {
-	r.wakeup()
+	if !r.wakeup() {
+		return false
+	}
 
 	if r.location != loc {
 		return false
@@ -221,7 +222,9 @@ func (r *Rabbit) TryCatch(loc string) bool {
 
 // Attempts to tag the rabbit. Right now it's a 100% chance.
 func (r *Rabbit) TryTag(loc, tag string) bool {
-	r.wakeup()
+	if !r.wakeup() {
+		return false
+	}
 
 	if r.location != loc {
 		return false
@@ -248,9 +251,14 @@ func (r *Rabbit) JustSpotted() bool {
 	return r.state == Spotted
 }
 
-// Returns true if the rabbit can't move, usually because it
-// is dead or caught.
-func (r *Rabbit) CanMove() bool {
+// Returns true if the rabbit is apart of the game. The rabbit
+// is no longer playing if it's caught/dead/etc. Or if the location
+// the rabbit is no longer exists.
+func (r *Rabbit) IsPlaying() bool {
+	if !r.home.LocationExists(r.location) {
+		rMachine.Perform(r, Kill)
+		return false
+	}
 	return r.state != Dead && r.state != Caught
 }
 

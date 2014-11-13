@@ -153,7 +153,7 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 	for _, r := range f.rabbits {
 		r.DisturbanceAt(loc)
 
-		if (r.CanMove()) {
+		if (r.IsPlaying()) {
 			if r.JustSpotted() {
 				if spotted != nil {
 					// XXX: Shouldn't happen.
