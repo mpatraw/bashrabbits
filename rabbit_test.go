@@ -30,7 +30,7 @@ func TestMoving(t *testing.T) {
 	r.setIdleTime(time.Millisecond)
 	r.setFleeTime(time.Millisecond)
 	if r.Location() != "far" {
-		t.Errorf("rabbit did not move (%s==%s)", r.Location(), "far");
+		t.Errorf("rabbit did not move (%s!=%s)", r.Location(), "far");
 	}
 
 	time.Sleep(time.Duration(2) * time.Millisecond)
