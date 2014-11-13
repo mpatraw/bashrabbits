@@ -100,6 +100,19 @@ The rabbit got away...
 
 Don't worry, there aren't __actually__ rabbits in your directories. The program keep a record of where every rabbit is and its state in `$HOME/.rabbit`, and moves and spawns new ones when necessary.
 
+## Future
+
+Some planned features:
+
+* Rabbits leave tracks where they've moved, so you know when a rabbit is close.
+* Traps. You have a limited number and you can lay one down in a directory, if a rabbit ever moves over that directory, it gets stuck and can't move. You should check you traps often so you don't accidentally kill the rabbit (starvation).
+* Zombie Rabbits. Killed rabbits come back to life to kill other rabbits, racking up the rabbit death toll. So you should try hunting and kill these in particular. They should be easier to find than normal rabbits (making noise, or whatever).
+* Colored Rabbits. Rabbits can have a random basic color, and when two of them meet, they fuse and create a new, more complex color. Some colors are difficult rare to find and catch.
+* Items. You can find items to help your search for rabbits. You can also trade caught rabbits for items.
+* Tagged rabbits are easier to find again.
+* Wolves. They kill rabbits and every now and then can steal your caught rabbits. They howl when they're near so you can search and kill them.
+
+
 ## Thanks
 
 To `bh`, for some of the rabbit ASCII art.
