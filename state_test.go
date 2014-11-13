@@ -13,6 +13,10 @@ func (tm *TestStateful) State() State {
 	return tm.state
 }
 
+func (tm *TestStateful) ShouldTransition(act Action, to State) bool {
+	return true
+}
+
 func (tm *TestStateful) EnterState(state State) {
 	fmt.Printf("%s -> ", tm.state)
 	tm.state = state

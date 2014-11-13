@@ -9,6 +9,7 @@ type State interface{}
 // states. It "has" a state.
 type Stateful interface {
 	State() State
+	ShouldTransition(Action, State) bool
 	EnterState(State)
 }
 
@@ -64,9 +65,11 @@ func (machine *Machine) DelTransition(from State, ev Action) {
 }
 
 // Performs an action on a stateful object using the state machine.
-func (machine *Machine) Perform(ful Stateful, ev Action) {
+func (machine *Machine) Perform(ful Stateful, ev Action) bool {
 	next, exists := machine.Transitions[Transition{ful.State(), ev}]
-	if exists {
+	if exists && ful.ShouldTransition(ev, next) {
 		ful.EnterState(next)
+		return true
 	}
+	return false
 }

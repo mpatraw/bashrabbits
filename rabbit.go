@@ -110,28 +110,58 @@ func NewRabbit(f Forest) Rabbit {
 	return r
 }
 
-// This is called when the rabbit flees, either after
-// FleeTime ran up, or a failed catch, or a tag.
-func (r *Rabbit) flee() {
-	if r.state != Fleeing {
-		panic("Tried to call flee() when not fleeing.")
-	}
-	r.lastMoved = time.Now()
-	r.lastLocation = r.location
-	// Run far away! We're scared.
-	r.location = r.home.FarawayLocation(r.location)
-	r.state = Wandering
+// Step 1 for becoming Stateful.
+func (r *Rabbit) State() State {
+	return State(r.state)
 }
 
-// This is called when the rabbit wanders after IdleTime is
-// up.
-func (r *Rabbit) wander() {
-	if r.state != Wandering {
-		panic("Tried to call wander() when not wandering.")
+// Step 2 for becoming Stateful.
+func (r *Rabbit) ShouldTransition(act Action, to State) bool {
+	rstate := to.(RabbitState)
+
+	switch rstate {
+	case Wandering:
+		return time.Now().Sub(r.lastMoved) >= r.idleTime
+	case Fleeing:
+		return time.Now().Sub(*r.lastSpotted) >= r.fleeTime
+	case Caught:
+		elapsed := time.Now().Sub(*r.lastSpotted)
+		catchchance := 1.0 - float64(elapsed) / float64(FleeTime)
+		return chance(catchchance)
+	default:
+		return true
 	}
-	r.lastMoved = time.Now()
-	r.lastLocation = r.location
-	r.location = r.home.NearbyLocation(r.location)
+}
+
+// Step 3 for becoming Stateful.
+func (r *Rabbit) EnterState(state State) {
+	rstate := state.(RabbitState)
+
+	switch rstate {
+	case Wandering:
+		r.lastMoved = time.Now()
+		r.lastLocation = r.location
+		r.location = r.home.NearbyLocation(r.location)
+		r.state = rstate
+	case Spotted:
+		// Uh-oh!
+		r.state = rstate
+		t := time.Now()
+		r.lastSpotted = &t
+		// Will start to flee the next update.
+	case Fleeing:
+		r.lastMoved = time.Now()
+		r.lastLocation = r.location
+		r.location = r.home.FarawayLocation(r.location)
+		r.state = rstate
+	case Caught:
+		r.location = ""
+		r.state = rstate
+	case Dead:
+		r.location = ""
+		r.state = rstate
+	default:
+	}
 }
 
 // This is called before every operation. The rabbit occasionally
@@ -141,26 +171,10 @@ func (r *Rabbit) wakeup() {
 		return
 	}
 	if !r.home.LocationExists(r.location) {
-		r.state = Dead
-		r.location = ""
+		rMachine.Perform(r, Kill)
 		return
 	}
-
-	// Immediately move to the fleeing state. The rabbit
-	// hasn't JUST been spotted, it's been sitting here.
-	if r.state == Spotted {
-		r.state = Fleeing
-	}
-
-	if r.state == Fleeing {
-		if time.Now().Sub(*r.lastSpotted) >= r.fleeTime {
-			r.flee()
-		}
-	} else {
-		if time.Now().Sub(r.lastMoved) >= r.idleTime {
-			r.wander()
-		}
-	}
+	rMachine.Perform(r, Wait)
 }
 
 // Used mostly for testing. The default is preferred.
@@ -182,12 +196,8 @@ func (r *Rabbit) ChangeHome(f Forest) {
 // if the place is here, the rabbit is spotted.
 func (r *Rabbit) DisturbanceAt(loc string) {
 	r.wakeup()
-
-	// Uh-oh!
 	if r.location == loc {
-		r.state = Spotted
-		t := time.Now()
-		r.lastSpotted = &t
+		rMachine.Perform(r, Spot)
 	}
 }
 
@@ -201,17 +211,11 @@ func (r *Rabbit) TryCatch(loc string) bool {
 		return false
 	}
 
-	elapsed := time.Now().Sub(*r.lastSpotted)
-	catchchance := 1.0 - float64(elapsed) / float64(FleeTime)
-	if chance(catchchance) {
-		r.state = Caught
-		r.location = ""
-	} else {
+	if !rMachine.Perform(r, Catch) {
 		// Oh-well, better luck next time.
-		r.flee()
+		rMachine.Perform(r, Wait)
 		return false
 	}
-
 	return true
 }
 
@@ -224,7 +228,7 @@ func (r *Rabbit) TryTag(loc, tag string) bool {
 	}
 
 	r.tag = tag
-	r.flee()
+	rMachine.Perform(r, Wait)
 	return true
 }
 
@@ -242,11 +246,6 @@ func (r *Rabbit) Tag() string {
 // state will immediately move to the fleeing state.
 func (r *Rabbit) JustSpotted() bool {
 	return r.state == Spotted
-}
-
-// Returns the state of the rabbit.
-func (r *Rabbit) State() RabbitState {
-	return r.state
 }
 
 // Returns true if the rabbit can't move, usually because it
