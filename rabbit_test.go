@@ -29,16 +29,16 @@ func TestMoving(t *testing.T) {
 	r := NewRabbit(tf)
 	r.setIdleTime(time.Millisecond)
 	r.setFleeTime(time.Millisecond)
-	if r.Location() != "far1" {
-		t.Errorf("rabbit did not move (%s==%s)", r.Location(), "far1");
+	if r.Location() != "far" {
+		t.Errorf("rabbit did not move (%s==%s)", r.Location(), "far");
 	}
-	
+
 	time.Sleep(time.Duration(2) * time.Millisecond)
-	r.DisturbanceAt("far11")
+	r.DisturbanceAt("far1")
 	if !r.JustSpotted() {
 		t.Errorf("rabbit was not spotted");
 	}
-	
+
 	time.Sleep(time.Duration(2) * time.Millisecond)
 	r.DisturbanceAt("somewhere")
 	if r.Location() != "far" {
