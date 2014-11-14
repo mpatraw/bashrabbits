@@ -1,4 +1,7 @@
 
+## v1.0
+
+* Various bug fixes.
 
 ## v1.0-beta
 

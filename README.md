@@ -13,7 +13,23 @@ If you have Go installed and setup, typing `rabbit` in your shell should automat
 
 `rabbit` offers a couple of commands to find and catch rabbits. The first and most obvious of which is `rabbit check` which checks the current directory for a rabbit. If there is one, you will see "A rabbit is here!!". You only have a few seconds to either catch it or tag it.
 
-Only a few rabbits will exist at any given time (1-15), all of which will never go below your home directory ($HOME). Generally the rabbits will move about an area slowly, only doing 1-2 directory hops every few minutes. The only time they move quickly is when they're spotted, once they leave (a few seconds later) they could be almost anywhere in your home tree.
+__Spotting:__
+
+You can spot rabbits doing a `rabbit check` in a directory. Only a few rabbits will exist at any given time (1-15), all of which will never go below your home directory ($HOME). Generally the rabbits will move about an area slowly, only doing 1-2 directory hops every few minutes. The only time they move quickly is when they're spotted, once they leave (a few seconds later) they could be almost anywhere in your home tree.
+
+__Tracking:__
+
+Rabbits leave behind tracks whenever they move around. These tracks fade fast so you if you see some, the rabbit will be sticking around for awhile. Rabbit tracks can be seen "ascending" or "descending". Ascending means moving up a directory (`cd ..`), descending is the opposite (`cd some_dir`).
+
+__Catching:__
+
+When you see a rabbit, you have a short amount of time (roughly 5 seconds) to try to catch the rabbit (`rabbit catch`). You have a chance to catch it.
+
+__Tagging:__
+
+Another option is to tag a rabbit. Right now it does very little except you can see familiar rabbits and see how far they've hopped (`rabbit tag downloads`). There's a 100% to tag but you have to tag within the same 5 second window that you have when catching, otherwise the rabbit fled.
+
+__Killing:__
 
 Killing rabbits is a danger. You can kill a rabbit (accidentally or intentionally) by destroying where they are, either by a `mv` or a `rm -r`. One goal is to avoid killing as many rabbits as possible, but sometimes it's just unavoidable. :(
 
@@ -104,7 +120,6 @@ Don't worry, there aren't __actually__ rabbits in your directories. The program 
 
 Some planned features:
 
-* Rabbits leave tracks where they've moved, so you know when a rabbit is close.
 * Traps. You have a limited number and you can lay one down in a directory, if a rabbit ever moves over that directory, it gets stuck and can't move. You should check you traps often so you don't accidentally kill the rabbit (starvation).
 * Zombie Rabbits. Killed rabbits come back to life to kill other rabbits, racking up the rabbit death toll. So you should try hunting and kill these in particular. They should be easier to find than normal rabbits (making noise, or whatever).
 * Colored Rabbits. Rabbits can have a random basic color, and when two of them meet, they fuse and create a new, more complex color. Some colors are difficult rare to find and catch.
