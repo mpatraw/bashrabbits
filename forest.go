@@ -141,6 +141,14 @@ func (f *directoryForest) IsRabbitHere() bool {
 	return ok
 }
 
+// Returns true if there are tracks here. Tracks are places
+// where rabbits have been, not where they are.
+func (f *directoryForest) AreTracksHere() bool {
+	loc, _ := os.Getwd()
+	_, ok := f.tracks[loc]
+	return ok
+}
+
 // Anytime a location is entered, a check is performed. This
 // function updates every rabbit and returns a rabbit if one
 // is spotted.

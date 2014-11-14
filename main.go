@@ -159,6 +159,13 @@ func check(df *directoryForest) {
 				printRabbit(Spotted)
 			}
 		}
+	} else if df.AreTracksHere() {
+		fmt.Printf("You see rabbit tracks...\n")
+		if ascii {
+			fmt.Printf(" , , ,\n")
+			fmt.Printf("= = =\n")
+			fmt.Printf(" ` ` `\n")
+		}
 	}
 }
 
