@@ -44,8 +44,8 @@ const (
 )
 
 type track struct {
-	timestamp	time.Time
-	direction	TrackDirection
+	Timestamp	time.Time
+	Direction	TrackDirection
 }
 
 type directoryForest struct {
@@ -186,7 +186,7 @@ func (f *directoryForest) GetTracksHere() (bool, TrackDirection) {
 	loc, _ := os.Getwd()
 	t, ok := f.tracks[loc]
 	if ok {
-		return true, t.direction
+		return true, t.Direction
 	} else {
 		return false, TrackNone
 	}
@@ -298,7 +298,7 @@ func (f *directoryForest) repopulate() {
 func (f *directoryForest) fadeTracks() {
 	list := []string{}
 	for loc, track := range f.tracks {
-		age := time.Now().Sub(track.timestamp)
+		age := time.Now().Sub(track.Timestamp)
 		if age >= TrackFadeTime {
 			list = append(list, loc)
 		}

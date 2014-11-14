@@ -239,6 +239,8 @@ func main() {
 			return
 		}
 		tag(df, flag.Arg(1))
+	case "debug":
+		fmt.Printf("%+v", df)
 	default: usage()
 	}
 }
