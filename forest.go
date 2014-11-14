@@ -29,9 +29,9 @@ const (
 	TwoStepChance	= 0.50
 
 	// How long it takes for tracks to fade. Right
-	// now, it's as long as it takes for a rabbit to
-	// move.
-	TrackFadeTime	= IdleTime
+	// now, it's a 1/5 of the time it takes a rabbit
+	// to move.
+	TrackFadeTime	= IdleTime / 5
 )
 
 const (
