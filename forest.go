@@ -35,8 +35,10 @@ const (
 )
 
 const (
+	// No tracks.
+	TrackNone TrackDirection = iota
 	// Ascending is going "up" a directory, like cd ..
-	TrackAscending TrackDirection = 1 << iota
+	TrackAscending
 	// Descending is going "down" a directory, like cd ./data
 	TrackDescending
 )
@@ -179,12 +181,15 @@ func (f *directoryForest) IsRabbitHere() bool {
 	return ok
 }
 
-// Returns true if there are tracks here. Tracks are places
-// where rabbits have been, not where they are.
-func (f *directoryForest) AreTracksHere() bool {
+// Returns whether tracks
+func (f *directoryForest) GetTracksHere() (bool, TrackDirection) {
 	loc, _ := os.Getwd()
-	_, ok := f.tracks[loc]
-	return ok
+	t, ok := f.tracks[loc]
+	if ok {
+		return true, t.direction
+	} else {
+		return false, TrackNone
+	}
 }
 
 // Anytime a location is entered, a check is performed. This
