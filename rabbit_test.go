@@ -58,4 +58,18 @@ func TestUtil(t *testing.T) {
 			t.Errorf("randRange() returned out of range (%d)", r)
 		}
 	}
+
+	p1 := "/home/grue"
+	p2 := "/home/grue/data"
+	if !isAscension(p1, p2) {
+		t.Errorf("%s does not ascend from %s\n", p1, p2)
+	}
+	if !isDescension(p2, p1) {
+		t.Errorf("%s does not descend from %s\n", p2, p1)
+	}
+
+	p3 := "/home/grue"
+	if isAscension(p1, p3) || isDescension(p1, p3) {
+		t.Errorf("%s ascends or descends from %s\n", p1, p3)
+	}
 }

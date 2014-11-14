@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+// The direction of the tracks indicates where a rabbit went
+// from here.
+type TrackDirection uint
+
 const (
 	// Default value.
 	MinRabbits	= 1
@@ -30,12 +34,24 @@ const (
 	TrackFadeTime	= IdleTime
 )
 
+const (
+	// Ascending is going "up" a directory, like cd ..
+	TrackAscending TrackDirection = 1 << iota
+	// Descending is going "down" a directory, like cd ./data
+	TrackDescending
+)
+
+type track struct {
+	timestamp	time.Time
+	direction	TrackDirection
+}
+
 type directoryForest struct {
 	// List of rabbits and their locations. Only one
 	// rabbit per location.
 	rabbits		map[string]*Rabbit
 	// Tracks at a given location. Cleared and updated after every move.
-	tracks		map[string]time.Time
+	tracks		map[string]track
 	// Number of rabbits seen.
 	spottedCount	uint
 	// Number of rabbits caught.
@@ -46,7 +62,7 @@ type directoryForest struct {
 
 func newDirectoryForest() directoryForest {
 	return directoryForest{
-		map[string]*Rabbit{}, map[string]time.Time{}, 0, 0, 0,
+		map[string]*Rabbit{}, map[string]track{}, 0, 0, 0,
 	}
 }
 
@@ -105,8 +121,16 @@ tryagain:
 		goto tryagain
 	}
 
+	pastLoc := loc
 	for _, aloc := range added {
-		f.tracks[aloc] = time.Now()
+		if isAscension(aloc, pastLoc) {
+			f.tracks[pastLoc] = track{time.Now(), TrackAscending}
+		} else if isDescension(aloc, pastLoc) {
+			f.tracks[pastLoc] = track{time.Now(), TrackDescending}
+		} else {
+			panic("Rabbit didn't move to nearby location.")
+		}
+		pastLoc = aloc
 	}
 
 	return newloc
@@ -268,8 +292,8 @@ func (f *directoryForest) repopulate() {
 // tracks are removed.
 func (f *directoryForest) fadeTracks() {
 	list := []string{}
-	for loc, timestamp := range f.tracks {
-		age := time.Now().Sub(timestamp)
+	for loc, track := range f.tracks {
+		age := time.Now().Sub(track.timestamp)
 		if age >= TrackFadeTime {
 			list = append(list, loc)
 		}
@@ -283,7 +307,7 @@ func (f *directoryForest) fadeTracks() {
 // Used for marshalling/unmarshalling.
 type forest struct {
 	Rabbits		map[string]*Rabbit
-	Tracks		map[string]time.Time
+	Tracks		map[string]track
 	SpottedCount	uint
 	CaughtCount	uint
 	KilledCount	uint

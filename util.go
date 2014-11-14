@@ -89,3 +89,13 @@ func baseLocation() string {
 	home := os.Getenv("HOME")
 	return home
 }
+
+// Returns true if the path provided is an ascended location from.
+func isAscension(to string, from string) bool {
+	return strings.HasPrefix(filepath.Dir(from), to)
+}
+
+// Returns true if the path provided is a descended location from.
+func isDescension(to string, from string) bool {
+	return strings.HasPrefix(filepath.Dir(to), from)
+}
