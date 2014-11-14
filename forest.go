@@ -4,6 +4,7 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"time"
 )
 
 const (
@@ -22,6 +23,11 @@ const (
 
 	// Chance to move twice instead of once.
 	TwoStepChance	= 0.50
+
+	// How long it takes for tracks to fade. Right
+	// now, it's as long as it takes for a rabbit to
+	// move.
+	TrackFadeTime	= IdleTime
 )
 
 type directoryForest struct {
@@ -29,7 +35,7 @@ type directoryForest struct {
 	// rabbit per location.
 	rabbits		map[string]*Rabbit
 	// Tracks at a given location. Cleared and updated after every move.
-	tracks		map[string]bool
+	tracks		map[string]time.Time
 	// Number of rabbits seen.
 	spottedCount	uint
 	// Number of rabbits caught.
@@ -40,7 +46,7 @@ type directoryForest struct {
 
 func newDirectoryForest() directoryForest {
 	return directoryForest{
-		map[string]*Rabbit{}, map[string]bool{}, 0, 0, 0,
+		map[string]*Rabbit{}, map[string]time.Time{}, 0, 0, 0,
 	}
 }
 
@@ -70,6 +76,7 @@ func (f *directoryForest) NearbyLocation(loc string) string {
 	}
 
 tryagain:
+	added := []string{}
 	for i := 0; i < steps; i++ {
 		// Can't move.
 		if !canAscend(newloc) && !canDescend(newloc) {
@@ -87,6 +94,8 @@ tryagain:
 				newloc = ascend(newloc)
 			}
 		}
+
+		added = append(added, newloc)
 	}
 
 	if newloc == loc {
@@ -96,12 +105,17 @@ tryagain:
 		goto tryagain
 	}
 
+	for _, aloc := range added {
+		f.tracks[aloc] = time.Now()
+	}
+
 	return newloc
 
 }
 
 // A random faraway location. Rabbits typically start here
-// and run here when they're fleeing.
+// and run here when they're fleeing. Faraway locations don't
+// add tracks.
 func (f *directoryForest) FarawayLocation(loc string) string {
 	newloc := baseLocation()
 	triedagain := false
@@ -165,10 +179,12 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 
 		if (r.IsPlaying()) {
 			if r.JustSpotted() {
-				if spotted != nil {
-					// XXX: Shouldn't happen.
-					//panic("Spotted two rabbits. Impossible.")
-				}
+				// It's possible for two rabbits to "wakeup"
+				// to the same location in the same update.
+				// Right now the most recent on will not be
+				// overridden so we spotted that one.
+				//
+				// XXX: Fix rabbits running into each other?
 				spotted = r
 				f.spottedCount++
 			}
@@ -177,7 +193,10 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 			if r.State() == Dead {
 				f.killedCount++
 			} else if r.State() == Caught {
-				// Being caught is updated in the TryCatch.
+				// Update in PerformCatch, otherwise
+				// catching a rabbit score won't
+				// be update until the next call to this
+				// function.
 			}
 		}
 	}
@@ -187,6 +206,8 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 	// See if we should repopulate.
 	f.repopulate()
 
+	f.fadeTracks()
+
 	return
 }
 
@@ -194,8 +215,9 @@ func (f *directoryForest) PerformCheck() (spotted *Rabbit) {
 func (f *directoryForest) PerformCatch() bool {
 	loc, _ := os.Getwd()
 
-	rab, ok := f.rabbits[loc]
+	f.fadeTracks()
 
+	rab, ok := f.rabbits[loc]
 	if ok {
 		delete(f.rabbits, rab.Location())
 		succ := rab.TryCatch(loc)
@@ -214,8 +236,9 @@ func (f *directoryForest) PerformCatch() bool {
 func (f *directoryForest) PerformTag(tag string) bool {
 	loc, _ := os.Getwd()
 
-	rab, ok := f.rabbits[loc]
+	f.fadeTracks()
 
+	rab, ok := f.rabbits[loc]
 	if ok {
 		delete(f.rabbits, rab.Location())
 		succ := rab.TryTag(loc, tag)
@@ -241,9 +264,26 @@ func (f *directoryForest) repopulate() {
 	}
 }
 
+// Fades the tracks depending on how old they are. Faded
+// tracks are removed.
+func (f *directoryForest) fadeTracks() {
+	list := []string{}
+	for loc, timestamp := range f.tracks {
+		age := time.Now().Sub(timestamp)
+		if age >= TrackFadeTime {
+			list = append(list, loc)
+		}
+	}
+
+	for _, loc := range list {
+		delete(f.tracks, loc)
+	}
+}
+
 // Used for marshalling/unmarshalling.
 type forest struct {
 	Rabbits		map[string]*Rabbit
+	Tracks		map[string]time.Time
 	SpottedCount	uint
 	CaughtCount	uint
 	KilledCount	uint
@@ -257,6 +297,7 @@ func (f *directoryForest) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	f.rabbits = data.Rabbits
+	f.tracks = data.Tracks
 	f.spottedCount = data.SpottedCount
 	f.caughtCount = data.CaughtCount
 	f.killedCount = data.KilledCount
@@ -272,6 +313,7 @@ func (f *directoryForest) UnmarshalJSON(b []byte) error {
 func (f *directoryForest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&forest{
 		Rabbits:	f.rabbits,
+		Tracks:		f.tracks,
 		SpottedCount:	f.spottedCount,
 		CaughtCount:	f.caughtCount,
 		KilledCount:	f.killedCount,
