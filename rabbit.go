@@ -31,6 +31,8 @@ const (
 	Wait RabbitAction = iota
 	// A rabbit is spotted.
 	Spot
+	// Force a fee.
+	Flee
 	// When a catch attempt succeeds.
 	Catch
 	// When a rabbit dies. :(
@@ -92,6 +94,7 @@ func init() {
 
 	rMachine.AddTransition(State(Spotted), Action(Wait), State(Fleeing))
 	// Can't spot an already spotted rabbit.
+	rMachine.AddTransition(State(Spotted), Action(Flee), State(Fleeing))
 	rMachine.AddTransition(State(Spotted), Action(Catch), State(Caught))
 	rMachine.AddTransition(State(Spotted), Action(Kill), State(Dead))
 
@@ -117,14 +120,19 @@ func (r *Rabbit) State() State {
 
 // Step 2 for becoming Stateful.
 func (r *Rabbit) ShouldTransition(act Action, to State) bool {
+	ract := act.(RabbitAction)
 	rstate := to.(RabbitState)
 
-	switch rstate {
-	case Wandering:
-		return time.Now().Sub(r.lastMoved) >= r.idleTime
-	case Fleeing:
-		return time.Now().Sub(*r.lastSpotted) >= r.fleeTime
-	case Caught:
+	switch ract {
+	case Wait:
+		if rstate == Wandering {
+			return time.Now().Sub(r.lastMoved) >= r.idleTime
+		} else if rstate == Fleeing {
+			return time.Now().Sub(*r.lastSpotted) >= r.fleeTime
+		} else {
+			panic("Waiting when not wandering or fleeing.")
+		}
+	case Catch:
 		elapsed := time.Now().Sub(*r.lastSpotted)
 		catchchance := 1.0 - float64(elapsed) / float64(FleeTime)
 		return chance(catchchance)
@@ -214,7 +222,7 @@ func (r *Rabbit) TryCatch(loc string) bool {
 
 	if !rMachine.Perform(r, Catch) {
 		// Oh-well, better luck next time.
-		rMachine.Perform(r, Wait)
+		rMachine.Perform(r, Flee)
 		return false
 	}
 	return true
@@ -231,7 +239,7 @@ func (r *Rabbit) TryTag(loc, tag string) bool {
 	}
 
 	r.tag = tag
-	rMachine.Perform(r, Wait)
+	rMachine.Perform(r, Flee)
 	return true
 }
 
