@@ -334,7 +334,7 @@ func (f *directoryForest) UnmarshalJSON(b []byte) error {
 	// Circular reference. Couldn't marshal their home so
 	// we do it here.
 	for _, r := range f.rabbits {
-		(&r).ChangeHome(f)
+		r.ChangeHome(f)
 	}
 	return nil
 }
