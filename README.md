@@ -1,7 +1,7 @@
 
-# Rabbit
+# Bash Rabbits
 
-Rabbit is a game that is played in your file system. The goal is to catch and tag as many rabbits as possible, while avoiding killing too many.
+Bash Rabbits is a game that is played in your file system. The goal is to catch and tag as many rabbits as possible, while avoiding killing too many.
 
 ## How to Install
 
@@ -120,12 +120,13 @@ Don't worry, there aren't __actually__ rabbits in your directories. The program 
 
 Some planned features:
 
+* Multiplayer with website and leaderboard!
 * Traps. You have a limited number and you can lay one down in a directory, if a rabbit ever moves over that directory, it gets stuck and can't move. You should check you traps often so you don't accidentally kill the rabbit (starvation).
 * Zombie Rabbits. Killed rabbits come back to life to kill other rabbits, racking up the rabbit death toll. So you should try hunting and kill these in particular. They should be easier to find than normal rabbits (making noise, or whatever).
 * Colored Rabbits. Rabbits can have a random basic color, and when two of them meet, they fuse and create a new, more complex color. Some colors are difficult rare to find and catch.
 * Items. You can find items to help your search for rabbits. You can also trade caught rabbits for items.
 * Tagged rabbits are easier to find again.
-* Wolves. They kill rabbits and every now and then can steal your caught rabbits. They howl when they're near so you can search and kill them.
+* Foxes. They kill rabbits and every now and then can steal your caught rabbits.
 * Cute spiders? /// ^ oo ^ \\\
 
 
