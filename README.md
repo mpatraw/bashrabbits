@@ -5,7 +5,7 @@ Bash Rabbits is a game that is played in your file system. The goal is to catch 
 
 ## How to Install
 
-If you have Go installed, you can run `go get github.com/mpatraw/rabbit`. Or you can grab one of the binaries [here](https://github.com/mpatraw/rabbit/releases/tag/v1.0-beta).
+If you have Go installed, you can run `go get github.com/mpatraw/bashrabbits`. Or you can grab one of the binaries [here](https://github.com/mpatraw/bashrabbits/releases/tag/v1.0-beta).
 
 If you used Go to get the binaries, and you have your Go bin directory in your PATH variable you should be ready to play. If not, you will need to add the binaries to your `PATH` variable. Moving `rabbit` to `/usr/bin/` works too.
 
