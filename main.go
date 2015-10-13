@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -78,18 +77,24 @@ func saveDirectoryForest(filename string, df *directoryForest) {
 // Returns flavor for the number of spotted rabbits.
 func spottedFlavor(count uint) string {
 	switch {
-	case count < 20: return ""
-	case count < 50: return ":)"
-	default: return ":D"
+	case count < 20:
+		return ""
+	case count < 50:
+		return ":)"
+	default:
+		return ":D"
 	}
 }
 
 // Returns flavor for the number of caught rabbits.
 func caughtFlavor(count uint) string {
 	switch {
-	case count < 5: return ""
-	case count < 20: return ":)"
-	default: return ":D"
+	case count < 5:
+		return ""
+	case count < 20:
+		return ":)"
+	default:
+		return ":D"
 	}
 }
 
@@ -97,10 +102,14 @@ func caughtFlavor(count uint) string {
 // more dramatic the flavor.
 func killedFlavor(count uint) string {
 	switch {
-	case count < 5: return ""
-	case count < 20: return ":("
-	case count < 50: return ";("
-	default: return "MONSTER!!"
+	case count < 5:
+		return ""
+	case count < 20:
+		return ":("
+	case count < 50:
+		return ";("
+	default:
+		return "MONSTER!!"
 	}
 }
 
@@ -109,7 +118,7 @@ func printStats(df *directoryForest) {
 	sflavor := spottedFlavor(df.spottedCount)
 	cflavor := caughtFlavor(df.caughtCount)
 	kflavor := killedFlavor(df.killedCount)
-	fmt.Printf("Rabbits\n");
+	fmt.Printf("Rabbits\n")
 	fmt.Printf("...spotted:    %d %s\n", df.spottedCount, sflavor)
 	fmt.Printf("...caught:     %d %s\n", df.caughtCount, cflavor)
 	fmt.Printf("...killed:     %d %s\n", df.killedCount, kflavor)
@@ -241,6 +250,7 @@ func main() {
 		tag(df, flag.Arg(1))
 	case "debug":
 		fmt.Printf("%+v", df)
-	default: usage()
+	default:
+		usage()
 	}
 }
